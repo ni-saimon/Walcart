@@ -10,3 +10,12 @@ i.   login
 ii.  search a product
 iii. order a product
 iv.  logout
+
+
+Command needed
+
+### for dotenv file
+python3 -m pip install python-dotenv
+
+### for chromedriver
+pip install webdriver-manager
