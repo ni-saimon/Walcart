@@ -56,13 +56,17 @@ class Walcart():
         self.driver.execute_script("arguments[0].click();", element)
         element2 = self.driver.find_element(By.XPATH, ".//input[@type='radio' and @value='cashondelivery']")
         self.driver.execute_script("arguments[0].click();", element2)
+        ### If the button is clickable then it assumed that the order can be placed
         assert self.driver.find_element(By.CLASS_NAME, "checkout").is_displayed()
+        ### or just click the button for actual order, replace the above line with this
+        #self.driver.find_element(By.CLASS_NAME, "checkout").click()
 
     def test_logout(self):
         self.driver.find_element(By.CLASS_NAME, "acc-btn").click()
         self.driver.find_element(By.CLASS_NAME, "mbi-exit").click()
         self.driver.implicitly_wait(4)
         loginText = self.driver.find_element(By.CLASS_NAME, "phoneview-user").text
+        ### Verify if logout is successful
         assert "Log In" == loginText
 
     def shutdown(self):
