@@ -1,7 +1,8 @@
 # Walcart
 an ecommerce website automation testing for order processing
+https://www.walcart.com/
 
-e2e automation testing using selenium and python
+e2e automation testing using selenium webdriver with python
 replace the mobile and password using your own information
 
 What you can do:
