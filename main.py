@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from dotenv import load_dotenv
 import os
@@ -13,7 +14,7 @@ password = os.environ.get("Password")
 class Walcart():
 
     def setUp(self):
-        ###old chromedriver path
+        ### old chromedriver path
         #self.driver = webdriver.Chrome("U:\chromedriver.exe")
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
         self.driver.maximize_window()
@@ -29,23 +30,32 @@ class Walcart():
         self.driver.implicitly_wait(2)
         self.driver.find_element(By.ID, "pass").send_keys(password)
         self.driver.find_element(By.CLASS_NAME, "mobile-login-code-button").click()
+        ### Verify if the login is ok
         welcomeText = self.driver.find_element(By.CLASS_NAME, "acc-btn").text
-        ### Verify if the log in was successful
         assert "Hi," == welcomeText
+
+    def category_selection(self):
+        self.driver.find_element(By.CLASS_NAME, "d-md-block").click()
+        element = self.driver.find_element(By.CLASS_NAME, "magebig-nav")
+        self.driver.execute_script("arguments[0].click();", element)
 
     def test_order(self):
         time.sleep(5)
         self.driver.find_element(By.CLASS_NAME, "input-text").send_keys('Nescafe - 3 in 1')
-        self.driver.implicitly_wait(8)
-        self.driver.find_element(By.PARTIAL_LINK_TEXT, "Nescafe - 3 in 1").click()
+        self.driver.implicitly_wait(5)
+        try:
+            self.driver.find_element(By.PARTIAL_LINK_TEXT, "Nescafe - 3 in 1").click()
+        except NoSuchElementException:
+            print("Product not found")
+        ### increase quantity
         self.driver.find_element(By.CLASS_NAME, "increase").click()
         self.driver.find_element(By.CLASS_NAME, "tocart").click()
         self.driver.find_element(By.CLASS_NAME, "checkout").click()
+        ### check if the user is logged in
         element = self.driver.find_element(By.CLASS_NAME, "continue")
         self.driver.execute_script("arguments[0].click();", element)
         element2 = self.driver.find_element(By.XPATH, ".//input[@type='radio' and @value='cashondelivery']")
         self.driver.execute_script("arguments[0].click();", element2)
-        ### verify if the checkout button is clickable
         assert self.driver.find_element(By.CLASS_NAME, "checkout").is_displayed()
 
     def test_logout(self):
@@ -53,7 +63,6 @@ class Walcart():
         self.driver.find_element(By.CLASS_NAME, "mbi-exit").click()
         self.driver.implicitly_wait(4)
         loginText = self.driver.find_element(By.CLASS_NAME, "phoneview-user").text
-        ### Verify if the log out was successful
         assert "Log In" == loginText
 
     def shutdown(self):
@@ -63,6 +72,7 @@ class Walcart():
 x = Walcart()
 x.setUp()
 x.test_login()
-x.test_logout()
+#x.category_selection()
 x.test_order()
+x.test_logout()
 x.shutdown()
