@@ -30,12 +30,15 @@ class Walcart():
         self.driver.implicitly_wait(2)
         self.driver.find_element(By.ID, "pass").send_keys(password)
         self.driver.find_element(By.CLASS_NAME, "mobile-login-code-button").click()
+
         ### Verify if the login is ok
         welcomeText = self.driver.find_element(By.CLASS_NAME, "acc-btn").text
         assert "Hi," == welcomeText
 
     def category_selection(self):
         self.driver.find_element(By.CLASS_NAME, "d-md-block").click()
+        self.driver.find_element(By.CLASS_NAME, "level0 nav-5 level-top mega_left parent").click()
+
         element = self.driver.find_element(By.CLASS_NAME, "magebig-nav")
         self.driver.execute_script("arguments[0].click();", element)
 
@@ -47,17 +50,32 @@ class Walcart():
             self.driver.find_element(By.PARTIAL_LINK_TEXT, "Nescafe - 3 in 1").click()
         except NoSuchElementException:
             print("Product not found")
+
         ### increase quantity
         self.driver.find_element(By.CLASS_NAME, "increase").click()
+        self.driver.find_element(By.ID, "qty").clear()
+        self.driver.find_element(By.ID, "qty").send_keys("5")
         self.driver.find_element(By.CLASS_NAME, "tocart").click()
+
+        ### verify if the quantity is allowed, if not then reset the quantity to 1
+        errMsg = self.driver.find_element(By.ID, "qty-error").text
+        if errMsg == "The maximum you may purchase is 2.":
+            self.driver.find_element(By.ID, "qty").clear()
+            self.driver.find_element(By.ID, "qty").send_keys("1")
+            self.driver.find_element(By.CLASS_NAME, "tocart").click()
+        else:
+            self.driver.find_element(By.CLASS_NAME, "checkout").click()
+
         self.driver.find_element(By.CLASS_NAME, "checkout").click()
         ### check if the user is logged in
         element = self.driver.find_element(By.CLASS_NAME, "continue")
         self.driver.execute_script("arguments[0].click();", element)
         element2 = self.driver.find_element(By.XPATH, ".//input[@type='radio' and @value='cashondelivery']")
         self.driver.execute_script("arguments[0].click();", element2)
+
         ### If the button is clickable then it assumed that the order can be placed
         assert self.driver.find_element(By.CLASS_NAME, "checkout").is_displayed()
+
         ### or just click the button for actual order, replace the above line with this
         #self.driver.find_element(By.CLASS_NAME, "checkout").click()
 
@@ -66,6 +84,7 @@ class Walcart():
         self.driver.find_element(By.CLASS_NAME, "mbi-exit").click()
         self.driver.implicitly_wait(4)
         loginText = self.driver.find_element(By.CLASS_NAME, "phoneview-user").text
+
         ### Verify if logout is successful
         assert "Log In" == loginText
 
